@@ -1,3 +1,9 @@
+/*
+ *
+ *   @Author: Giovanni Fiori <gcf@icomp.ufam.edu.br>
+ *
+ */
+
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -5,8 +11,8 @@ public class Main {
     public static void main(String[] args) {
         Shell shell = new Shell();
         Scanner in = new Scanner(System.in);
-        String uniqueID = UUID.randomUUID().toString();
-        String logDir = shell.getHomeDirectory();
+        String uniqueID = UUID.randomUUID().toString(); //id unico para salvar arquivo de log
+        String logDir = shell.getHomeDirectory();       //diretorio onde serão salvos os arquivos de log da sessao
         Log log = new Log();
         String input = "";
 
@@ -15,7 +21,7 @@ public class Main {
         do {
             System.out.print(shell.lineHeader());
             input = in.nextLine();
-            log.insert(input, shell.getUser(), shell.getHostName());
+            log.insert(input, shell.getUser(), shell.getHostName());    //insere a entrada no log
             String[] input_array = input.split(" ");
 
             switch (input_array[0].toLowerCase()) {

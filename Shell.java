@@ -7,7 +7,6 @@
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class Shell {
@@ -18,12 +17,11 @@ public class Shell {
     private String currentDirectory;
 
 
-    //Inicia um novo objeto com os valores padrão
+    //Inicia um novo shell
     public Shell(){
-        this.homeDirectory = System.getProperty("user.home");
-        //o terminal inicia no diretório home do usuário
-        this.currentDirectory = this.homeDirectory;
-        this.user = System.getProperty ("user.name");
+        this.homeDirectory = System.getProperty("user.home");   //atribui o diretorio home do usuario
+        this.currentDirectory = this.homeDirectory;             //o shell inicia no diretorio home do usuário
+        this.user = System.getProperty ("user.name");           //atribui o nome de usuario logado no SO
 
         try {
             //Classe InetAddress representa um endereço IP, neste caso, do localhost
@@ -33,6 +31,7 @@ public class Shell {
         }
     }
 
+    //lista todos os comandos disponíveis
     public void info(){
         System.out.println("Commands available: ");
         System.out.println("    - ls");
@@ -47,6 +46,8 @@ public class Shell {
         System.out.println("    - clear");
         System.out.println("    - exec");
     }
+
+    /* Getters */
 
     public String getHostName() {
         return this.hostName;
@@ -64,14 +65,14 @@ public class Shell {
         return this.currentDirectory;
     }
 
-    //user@host:currDir$
+    //retorna username@host:currentDir$
     public String lineHeader(){
         String home = this.currentDirectory.equals(this.homeDirectory) ? "~" : this.getCurrentDirectory();
         home = home.replace(this.homeDirectory, "~");
         return this.getUser() + '@' + this.getHostName() + ':' + home + "$ ";
     }
 
-    //retorna o caminho absoluto pra dado arquivo/diretorio
+    //retorna o caminho absoluto do parametro passado
     private String getAbsPath(String path){
         String returnString = "";
         try {
@@ -92,27 +93,32 @@ public class Shell {
         return this.currentDirectory;
     }
 
+    //retorna o usuario
     public String whoami() {
         return this.getUser();
     }
 
-    //mudar de diretório
+    //muda de diretório
     public void cd(String goTo) {
         if (goTo == null || goTo.isEmpty()){
-            goTo = System.getProperty("user.home");
+            goTo = this.getHomeDirectory();
         }
 
-            if(goTo.startsWith("/")){
-                this.currentDirectory = goTo;
-            }else{
-                File thisDir = new File(this.getCurrentDirectory());
-                File dir = new File(thisDir, goTo);
+        //caso o parametro seja um caminho absoluto
+        if(goTo.startsWith("/")){
+            this.currentDirectory = goTo;
+        }else{
+            File thisDir = new File(this.getCurrentDirectory());
+            File dir = new File(thisDir, goTo);
 
-                goTo = getAbsPath(goTo);
-                if(dir.exists()){
+            goTo = getAbsPath(goTo);
+            if(dir.exists()){
+                if(dir.isDirectory())
                     this.currentDirectory = goTo;
-                }
+                else
+                    System.out.println("param is not a directory");
             }
+        }
     }
 
     //lista diretorios e arquivos dentro do diretorio atual
@@ -181,7 +187,7 @@ public class Shell {
         movingFile.renameTo(new File(movingDir, movingFile.getName()));
     }
 
-    //deleta arquivo / diretorio
+    //deleta arquivo
     public void rm(String path) {
         if (path == null || path.isEmpty()) {
             System.out.println("invalid param");
@@ -196,6 +202,7 @@ public class Shell {
             System.out.println("param is not a file");
     }
 
+    //deleta diretorio
     public void rmdir(String path) {
         if (path == null || path.isEmpty()) {
             System.out.println("invalid param");
@@ -216,18 +223,17 @@ public class Shell {
 
     }
 
+    //limpa a tela
     public void clear() {
         for (int i = 0; i < 30; i++) {
             System.out.println("\n");
         }
     }
 
+    //executa programas
     public void exec(String[] params) {
         ProcessBuilder pb = new ProcessBuilder(params);
         Map<String, String> env = pb.environment();
-        env.put("VAR1", "myValue");
-        env.remove("OTHERVAR");
-        env.put("VAR2", env.get("VAR1") + "suffix");
         File dir = new File(getCurrentDirectory());
         pb.directory(dir);
         try {
