@@ -104,9 +104,17 @@ public class Shell {
             goTo = this.getHomeDirectory();
         }
 
-        //caso o parametro seja um caminho absoluto
         if(goTo.startsWith("/")){
-            this.currentDirectory = goTo;
+            File dest = new File(goTo);
+            if(dest.exists() && dest.isDirectory()){
+                this.currentDirectory = goTo;
+            }
+        }else if(goTo.startsWith("~")){
+            goTo = goTo.replace("~", this.getHomeDirectory());
+            File dest = new File(goTo);
+            if(dest.exists() && dest.isDirectory()){
+                this.currentDirectory = goTo;
+            }
         }else{
             File thisDir = new File(this.getCurrentDirectory());
             File dir = new File(thisDir, goTo);
