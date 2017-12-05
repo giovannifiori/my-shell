@@ -35,7 +35,10 @@ public class Main {
                     System.out.println(shell.whoami());
                     break;
                 case "ls":
-                    shell.ls();
+                    if(input_array.length > 1)
+                        shell.ls(input_array[1]);
+                    else
+                        shell.ls();
                     break;
                 case "cd":
                     if(input_array.length > 1)
@@ -70,8 +73,6 @@ public class Main {
                 case "mv":
                     if(input_array.length > 2)
                         shell.mv(input_array[1], input_array[2]);
-                    else
-                        shell.mv("", "");
                     break;
                 case "clear":
                     shell.clear();
@@ -79,9 +80,7 @@ public class Main {
                 case "exec":
                     if(input_array.length > 1){
                         String[] params = new String[input_array.length - 1];
-                        for (int i = 1; i < input_array.length; i++) {
-                            params[i-1] = input_array[i];
-                        }
+                        System.arraycopy(input_array, 1, params, 0, input_array.length-1);
                         shell.exec(params);
                     }
                     break;
@@ -89,7 +88,7 @@ public class Main {
                     log.save(logDir + "/log_" + uniqueID+".txt");
                     break;
                 default:
-                    System.out.println("comando não encontrado");
+                    System.out.println("command not found");
                     break;
             }
         } while(!input.equals("exit"));
