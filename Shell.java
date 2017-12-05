@@ -34,17 +34,18 @@ public class Shell {
     //lista todos os comandos disponíveis
     public void info(){
         System.out.println("Commands available: ");
-        System.out.println("    - ls");
-        System.out.println("    - pwd");
-        System.out.println("    - cd");
-        System.out.println("    - mkdir");
-        System.out.println("    - touch");
-        System.out.println("    - mv");
-        System.out.println("    - rm");
-        System.out.println("    - rmdir");
-        System.out.println("    - whoami");
-        System.out.println("    - clear");
-        System.out.println("    - exec");
+        System.out.println("ls              - list current dir files/dirs");
+        System.out.println("ls path/to/dir  - list files/dirs from another dir");
+        System.out.println("pwd             - get the current dir path");
+        System.out.println("cd              - changes dir");
+        System.out.println("mkdir           - create a dir");
+        System.out.println("touch           - create a file");
+        System.out.println("mv              - move/rename a file/folder");
+        System.out.println("rm              - delete a file");
+        System.out.println("rmdir           - delete a dir");
+        System.out.println("whoami          - get the current user");
+        System.out.println("clear           - clear screen");
+        System.out.println("exec            - exec programs");
     }
 
     /* Getters */
@@ -74,6 +75,20 @@ public class Shell {
 
     //retorna o caminho absoluto do parametro passado
     private String getAbsPath(String path){
+
+        //path já é absoluto, verifica se existe
+        if(path.startsWith("/")){
+            File f = new File(path);
+            if(f.exists()){
+                return path;
+            }
+        }
+
+        //verifica se o usuario usou ~ ao se referir ao home
+        if(path.startsWith("~")){
+            path = path.replace("~", this.getHomeDirectory());
+        }
+
         String returnString = "";
         try {
             File thisDir = new File(this.getCurrentDirectory());
@@ -100,8 +115,10 @@ public class Shell {
 
     //muda de diretório
     public void cd(String goTo) {
+        //comando cd sem parametro retorna para o diretorio home
         if (goTo == null || goTo.isEmpty()){
-            goTo = this.getHomeDirectory();
+            this.currentDirectory = this.getHomeDirectory();
+            return;
         }
 
         if(goTo.startsWith("/")){
@@ -142,6 +159,23 @@ public class Shell {
                 System.out.println(ls[i]);
             }
         }
+    }
+
+    //lista diretorios e arquivos dentro do diretorio passado como parametro
+    public void ls(String anotherDir) {
+        anotherDir = getAbsPath(anotherDir);
+        File files = new File(anotherDir);
+        if(files.exists()){
+            String ls[] = files.list();
+
+            for (int i = 0; i < ls.length; i++) {
+                //ignora arquivos .~
+                if (!ls[i].startsWith(".")) {
+                    System.out.println(ls[i]);
+                }
+            }
+        }
+
     }
 
     //cria um novo diretório
@@ -189,10 +223,8 @@ public class Shell {
         to = getAbsPath(to);
 
         File movingFile = new File(from);
-        // diretorio de destino
         File movingDir = new File(to);
-        // move o arquivo para o novo diretorio
-        movingFile.renameTo(new File(movingDir, movingFile.getName()));
+        movingFile.renameTo(movingDir);
     }
 
     //deleta arquivo
